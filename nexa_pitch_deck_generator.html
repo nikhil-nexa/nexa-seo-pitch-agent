@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXA Pitch Deck Generator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Poppins',sans-serif;background:#f7f4ff;color:#1a1a2e;min-height:100vh}
+.wrap{max-width:880px;margin:0 auto;padding:24px 16px 60px}
+.api-bar{background:#120E1C;border-radius:12px;padding:16px 24px;margin-bottom:24px;display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.api-lbl{font-size:11px;font-weight:700;color:#9354ff;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;padding-top:10px;flex-shrink:0}
+.api-field{flex:1;min-width:260px}
+.api-inp{width:100%;padding:9px 14px;border:1.5px solid #3a2d5c;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;background:#1e1535;color:#e9ddff;transition:border-color .2s}
+.api-inp:focus{border-color:#9354ff}
+.api-inp::placeholder{color:#4a3d6a;font-size:12px}
+.api-note{font-size:11px;color:#5a4d7a;margin-top:6px;line-height:1.5}
+.api-note a{color:#9354ff;text-decoration:none}
+.top-bar{background:#120E1C;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;border-radius:12px;margin-bottom:28px}
+.top-logo{font-size:22px;font-weight:800;color:#fff;letter-spacing:1px}
+.top-tag{font-size:11px;color:#9354ff;font-weight:600;letter-spacing:2px;text-transform:uppercase}
+.steps{display:flex;align-items:center;margin-bottom:28px;background:#fff;border-radius:12px;padding:16px 24px;border:1px solid #ede9fe}
+.stp{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.stp-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:2px solid #ddd6fe;background:#f7f4ff;color:#9b97b2;transition:all .25s}
+.stp.done .stp-dot{background:#9354ff;border-color:#9354ff;color:#fff}
+.stp.active .stp-dot{background:#fff;border-color:#9354ff;color:#9354ff;box-shadow:0 0 0 4px #e9ddff}
+.stp-lbl{font-size:10px;color:#9b97b2;font-weight:500;text-align:center;white-space:nowrap}
+.stp.active .stp-lbl{color:#9354ff;font-weight:600}
+.stp.done .stp-lbl{color:#9354ff}
+.stp-line{flex:1;height:2px;background:#ede9fe;margin:0 4px;margin-bottom:18px}
+.stp-line.done{background:#9354ff}
+.card{background:#fff;border-radius:14px;border:1px solid #ede9fe;padding:24px 26px;margin-bottom:18px}
+.card-hd{font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:18px;display:flex;align-items:center;gap:9px}
+.card-hd-icon{width:32px;height:32px;background:#9354ff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.section-ttl{font-size:22px;font-weight:800;color:#1a1a2e;margin-bottom:6px}
+.section-sub{font-size:13px;color:#7a6f9b;margin-bottom:24px}
+.lbl{display:block;font-size:11px;font-weight:600;color:#7a6f9b;margin-bottom:5px;letter-spacing:.4px;text-transform:uppercase}
+.inp{width:100%;padding:9px 13px;border:1.5px solid #ddd6fe;border-radius:8px;font-size:13px;font-family:'Poppins',sans-serif;outline:none;background:#fff;color:#1a1a2e;transition:border-color .2s}
+.inp:focus{border-color:#9354ff;box-shadow:0 0 0 3px #f0ebff}
+.inp::placeholder{color:#c4b5f5}
+.ta{resize:vertical;min-height:72px}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fld{margin-bottom:14px}
+.chip-wrap{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
+.chip{padding:5px 13px;border-radius:20px;font-size:12px;cursor:pointer;font-weight:500;border:1.5px solid #ddd6fe;background:#f7f4ff;color:#9354ff;font-family:'Poppins',sans-serif;transition:all .15s;user-select:none}
+.chip:hover{border-color:#9354ff}
+.chip.on{background:#9354ff;color:#fff;border-color:#9354ff}
+.upload-box{border:2px dashed #ddd6fe;border-radius:10px;padding:20px;text-align:center;cursor:pointer;background:#faf8ff;transition:all .2s;position:relative}
+.upload-box:hover{border-color:#9354ff;background:#f0ebff}
+.upload-icon{font-size:24px;margin-bottom:6px}
+.upload-ttl{font-size:13px;font-weight:600;color:#9354ff}
+.upload-sub{font-size:11px;color:#a89fc4;margin-top:3px}
+.upload-input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.file-list{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+.file-tag{display:inline-flex;align-items:center;gap:6px;background:#e9ddff;color:#9354ff;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:500}
+.file-rm{cursor:pointer;font-size:13px;color:#7a3de0;font-weight:700;background:none;border:none;padding:0;line-height:1;font-family:'Poppins',sans-serif}
+.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.metric-box{background:#f7f4ff;border:1px solid #ede9fe;border-radius:8px;padding:12px}
+.metric-lbl{font-size:10px;font-weight:600;color:#9b97b2;letter-spacing:.4px;text-transform:uppercase;margin-bottom:5px}
+.metric-inp{width:100%;border:none;background:transparent;font-size:18px;font-weight:700;color:#9354ff;font-family:'Poppins',sans-serif;outline:none}
+.metric-inp::placeholder{color:#d4c5f5;font-size:13px;font-weight:400}
+.currency-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+.cur-btn{border:1.5px solid #ddd6fe;border-radius:10px;padding:10px 8px;cursor:pointer;background:#f7f4ff;transition:all .18s;text-align:center;font-family:'Poppins',sans-serif}
+.cur-btn:hover{border-color:#9354ff;background:#f0ebff}
+.cur-btn.sel{border-color:#9354ff;background:#9354ff}
+.cur-flag{font-size:20px;display:block;margin-bottom:3px}
+.cur-code{font-size:13px;font-weight:700;color:#1a1a2e;display:block}
+.cur-btn.sel .cur-code,.cur-btn.sel .cur-sym{color:#fff}
+.cur-name{font-size:9px;color:#9b97b2;display:block;margin-top:1px}
+.cur-btn.sel .cur-name{color:#e9ddff}
+.cur-sym{font-size:10px;font-weight:600;color:#9354ff;display:block;margin-top:2px}
+.pkg-hd{display:grid;grid-template-columns:2fr 1.2fr 1fr 2.5fr 36px;gap:10px;margin-bottom:5px}
+.pkg-row{display:grid;grid-template-columns:2fr 1.2fr 1fr 2.5fr 36px;gap:10px;align-items:center;margin-bottom:9px}
+.pkg-lbl{font-size:10px;font-weight:600;color:#9b97b2;text-transform:uppercase;letter-spacing:.4px;padding:0 4px}
+.add-btn{background:#e9ddff;color:#9354ff;border:none;border-radius:7px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;margin-top:4px}
+.add-btn:hover{background:#ddd6fe}
+.rm-btn{background:#fee2e2;color:#dc2626;border:none;border-radius:6px;padding:6px;font-size:12px;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;width:36px}
+.btn-p{background:#9354ff;color:#fff;border:none;border-radius:9px;padding:12px 28px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;transition:background .2s}
+.btn-p:hover{background:#7a3de0}
+.btn-p:disabled{background:#c4b5f5;cursor:not-allowed}
+.btn-s{background:#e9ddff;color:#9354ff;border:none;border-radius:9px;padding:12px 22px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Poppins',sans-serif}
+.btn-s:hover{background:#ddd6fe}
+.nav-row{display:flex;justify-content:space-between;align-items:center;padding-top:10px;margin-top:4px}
+.review-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.review-card{background:#f7f4ff;border:1px solid #ede9fe;border-radius:10px;padding:14px 16px}
+.review-ttl{font-size:11px;font-weight:700;color:#9354ff;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.rv-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;border-bottom:1px solid #ede9fe;padding-bottom:5px;gap:8px}
+.rv-k{color:#7a6f9b;font-weight:500;flex-shrink:0}
+.rv-v{color:#1a1a2e;font-weight:600;text-align:right;word-break:break-word}
+.gen-area{text-align:center;padding:56px 20px}
+.spinner{width:48px;height:48px;border:3px solid #e9ddff;border-top-color:#9354ff;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 18px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.gen-ttl{font-size:18px;font-weight:700;color:#9354ff;margin-bottom:8px}
+.gen-sub{font-size:13px;color:#7a6f9b;line-height:1.6}
+.success-box{background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:28px;text-align:center;margin:16px 0}
+.success-ico{font-size:40px;margin-bottom:12px}
+.success-ttl{font-size:18px;font-weight:700;color:#166534;margin-bottom:6px}
+.success-sub{font-size:13px;color:#166534;opacity:.85;line-height:1.6}
+.error-box{background:#fef2f2;border:1.5px solid #fca5a5;border-radius:10px;padding:16px;color:#dc2626;font-size:13px;margin:14px 0;text-align:center;line-height:1.6;word-break:break-word}
+@media(max-width:640px){
+  .r2,.metric-grid,.review-grid{grid-template-columns:1fr}
+  .currency-grid{grid-template-columns:repeat(2,1fr)}
+  .pkg-hd,.pkg-row{grid-template-columns:1fr 1fr 36px}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="root"></div>
+<script>
+(function(){
+var STEPS=['Strategy','SEO Audit','GEO Audit','Commercials','Generate'];
+var OBJS=['Brand Visibility','Keyword Rankings','Conversion Generation','Lead Generation','Authority Building','Traffic Growth','Local SEO','E-commerce Growth','International Expansion'];
+var LANGS=['English','Arabic','French','Spanish','German','Chinese','Japanese','Portuguese','Italian','Hindi','Russian'];
+var CURRENCIES=[
+  {code:'AED',sign:'AED ',name:'UAE Dirham',flag:'🇦🇪'},
+  {code:'GBP',sign:'£',name:'British Pound',flag:'🇬🇧'},
+  {code:'USD',sign:'$',name:'US Dollar',flag:'🇺🇸'},
+  {code:'EUR',sign:'€',name:'Euro',flag:'🇪🇺'},
+  {code:'SAR',sign:'SR ',name:'Saudi Riyal',flag:'🇸🇦'},
+  {code:'QAR',sign:'QR ',name:'Qatari Riyal',flag:'🇶🇦'},
+  {code:'KWD',sign:'KD ',name:'Kuwaiti Dinar',flag:'🇰🇼'},
+  {code:'INR',sign:'₹',name:'Indian Rupee',flag:'🇮🇳'}
+];
+var state={
+  step:0,clientName:'',clientIndustry:'',websiteUrl:'',
+  presentationDate:new Date().toISOString().split('T')[0],
+  languages:[],locations:'',audience:'',preferredKeywords:'',seoObjectives:[],
+  seoFiles:[],organicTraffic:'',organicKeywords:'',domainRating:'',backlinks:'',referringDomains:'',seoAuditNotes:'',
+  geoFiles:[],chatgptCitations:'',geminiCitations:'',perplexityCitations:'',copilotCitations:'',geoAuditNotes:'',
+  currency:CURRENCIES[0],
+  commercialFiles:[],packages:[{name:'',price:'',hours:'',features:''}],commercialNotes:'',
+  status:'idle',errorMsg:''
+};
+function mk(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!==undefined)e.innerHTML=html;return e;}
+function inp(val,key,ph,type){var e=mk('input','inp');e.type=type||'text';e.value=val||'';e.placeholder=ph||'';e.addEventListener('input',function(ev){state[key]=ev.target.value;});return e;}
+function ta(val,key,ph){var e=mk('textarea','inp ta');e.value=val||'';e.placeholder=ph||'';e.addEventListener('input',function(ev){state[key]=ev.target.value;});return e;}
+function fld(label,child){var d=mk('div','fld');if(label){var l=mk('label','lbl');l.textContent=label;d.appendChild(l);}d.appendChild(child);return d;}
+function r2(){var d=mk('div','r2');for(var i=0;i<arguments.length;i++)d.appendChild(arguments[i]);return d;}
+function chipGroup(opts,key){
+  var w=mk('div','chip-wrap');
+  opts.forEach(function(opt){
+    var c=mk('span','chip'+(state[key].indexOf(opt)>=0?' on':''));
+    c.textContent=opt;
+    c.addEventListener('click',(function(o){return function(){var i=state[key].indexOf(o);if(i>=0)state[key].splice(i,1);else state[key].push(o);render();};})(opt));
+    w.appendChild(c);
+  });
+  return w;
+}
+function uploadBox(key,accept,label){
+  var box=mk('div','upload-box');
+  box.innerHTML='<div class="upload-icon">📎</div><div class="upload-ttl">'+label+'</div><div class="upload-sub">PDF, PNG, JPG — multiple files allowed</div>';
+  var fi=mk('input','upload-input');fi.type='file';fi.accept=accept;fi.multiple=true;
+  fi.addEventListener('change',function(ev){Array.from(ev.target.files).forEach(function(f){state[key].push(f);});render();});
+  box.appendChild(fi);
+  if(state[key].length){
+    var list=mk('div','file-list');
+    state[key].forEach(function(f,i){
+      var tag=mk('span','file-tag');tag.textContent=f.name+' ';
+      var rm=mk('button','file-rm');rm.textContent='✕';
+      (function(idx,k){rm.addEventListener('click',function(ev){ev.stopPropagation();state[k].splice(idx,1);render();});})(i,key);
+      tag.appendChild(rm);list.appendChild(tag);
+    });
+    box.appendChild(list);
+  }
+  return box;
+}
+function navRow(back,lbl,fn,ok){
+  var d=mk('div','nav-row');
+  if(back){var b=mk('button','btn-s');b.textContent='← Back';b.addEventListener('click',function(){state.step--;render();});d.appendChild(b);}
+  else d.appendChild(mk('span'));
+  var n=mk('button','btn-p');n.textContent=lbl||'Next →';if(!ok)n.disabled=true;n.addEventListener('click',fn||function(){state.step++;render();});d.appendChild(n);
+  return d;
+}
+function rvRow(k,v){var r=mk('div','rv-row');var kk=mk('span','rv-k');kk.textContent=k;var vv=mk('span','rv-v');vv.textContent=v;r.appendChild(kk);r.appendChild(vv);return r;}
+/* PPTX */
+var P={purple:'9354ff',light:'e9ddff',dark:'120E1C',white:'FFFFFF',lb:'F5F2FF',bd:'DDD6FE'};
+function hdr(s,pptx,t){s.addShape(pptx.shapes.RECTANGLE,{x:0,y:0,w:10,h:.88,fill:{color:P.purple},line:{color:P.purple,width:0}});s.addText(t,{x:.35,y:.08,w:9.3,h:.72,fontSize:20,bold:true,color:P.white,fontFace:'Poppins',valign:'middle'});}
+function makeCover(pptx,c,fd){var s=pptx.addSlide();s.background={color:P.dark};s.addShape(pptx.shapes.RECTANGLE,{x:0,y:0,w:.2,h:5.625,fill:{color:P.purple},line:{color:P.purple,width:0}});s.addShape(pptx.shapes.RECTANGLE,{x:0,y:5,w:10,h:.625,fill:{color:P.purple},line:{color:P.purple,width:0}});s.addShape(pptx.shapes.OVAL,{x:6.8,y:-1.2,w:5.2,h:5.2,fill:{color:P.purple,transparency:90},line:{color:P.purple,width:0}});s.addShape(pptx.shapes.OVAL,{x:7.8,y:2.8,w:3,h:3,fill:{color:P.purple,transparency:93},line:{color:P.purple,width:0}});s.addText('CONSULT. STRATEGISE. EXECUTE.',{x:.5,y:.28,w:9,h:.32,fontSize:8,color:P.light,fontFace:'Poppins',charSpacing:3});s.addText(fd.clientName||'Client Name',{x:.5,y:.75,w:8.5,h:1.5,fontSize:48,bold:true,color:P.white,fontFace:'Poppins'});s.addText('SEO & GEO STRATEGY PROPOSAL',{x:.5,y:2.45,w:8,h:.6,fontSize:18,bold:true,color:P.purple,fontFace:'Poppins',charSpacing:1});s.addText((c.cover&&c.cover.tagline)||'Driving organic growth through intelligent search strategy.',{x:.5,y:3.18,w:7.5,h:.55,fontSize:13,color:'BDB4CC',fontFace:'Poppins',italic:true});var dt=fd.presentationDate?new Date(fd.presentationDate).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'';s.addText(dt,{x:.5,y:4.1,w:4,h:.3,fontSize:10.5,color:'8B7EAB',fontFace:'Poppins'});s.addText('Prepared by NEXA',{x:.5,y:4.42,w:5,h:.3,fontSize:10,color:'7A6B94',fontFace:'Poppins'});s.addText('NEXA',{x:7.6,y:5.04,w:2.1,h:.5,fontSize:20,bold:true,color:P.white,fontFace:'Poppins',align:'center'});}
+function makeDivider(pptx,title,sub){var s=pptx.addSlide();s.background={color:P.purple};s.addShape(pptx.shapes.OVAL,{x:6.2,y:-.9,w:5.8,h:5.8,fill:{color:P.white,transparency:93},line:{color:P.white,width:0}});s.addShape(pptx.shapes.OVAL,{x:-.5,y:3.5,w:3,h:3,fill:{color:P.white,transparency:95},line:{color:P.white,width:0}});s.addShape(pptx.shapes.RECTANGLE,{x:0,y:0,w:.14,h:5.625,fill:{color:P.white},line:{color:P.white,width:0}});s.addText(title,{x:.5,y:1.8,w:9,h:1.3,fontSize:38,bold:true,color:P.white,fontFace:'Poppins'});if(sub)s.addText(sub,{x:.5,y:3.22,w:8,h:.6,fontSize:14,color:P.light,fontFace:'Poppins',italic:true});}
+function makeObjectives(pptx,objs){var s=pptx.addSlide();s.background={color:P.white};hdr(s,pptx,'Core Objectives');objs.slice(0,4).forEach(function(o,i){var col=i%2,row=Math.floor(i/2),x=.28+col*4.88,y=1.02+row*2.25,w=4.52,h=2;s.addShape(pptx.shapes.RECTANGLE,{x:x,y:y,w:w,h:h,fill:{color:P.lb},line:{color:P.bd,width:.75}});s.addShape(pptx.shapes.RECTANGLE,{x:x,y:y,w:.07,h:h,fill:{color:P.purple},line:{color:P.purple,width:0}});s.addShape(pptx.shapes.OVAL,{x:x+.18,y:y+.17,w:.42,h:.42,fill:{color:P.purple},line:{color:P.purple,width:0}});s.addText(String(i+1),{x:x+.18,y:y+.17,w:.42,h:.42,fontSize:12,bold:true,color:P.white,fontFace:'Poppins',align:'center',valign:'middle'});s.addText(o.title,{x:x+.72,y:y+.2,w:w-.85,h:.38,fontSize:11,bold:true,color:'222222',fontFace:'Poppins'});s.addText(o.description,{x:x+.18,y:y+.68,w:w-.3,h:1.2,fontSize:9.5,color:'555555',fontFace:'Poppins'});});}
+function makeOpportunity(pptx,d){var s=pptx.addSlide();s.background={color:P.white};hdr(s,pptx,'Understanding the Opportunity');s.addText(d.context||'',{x:.3,y:1,w:9.4,h:.6,fontSize:10.5,color:'444444',fontFace:'Poppins'});[[.28,'Established Strengths',d.established||[],P.purple],[5.2,'Growth Opportunities',d.opportunities||[],'7a3de0']].forEach(function(a){var x=a[0],ti=a[1],it=a[2],co=a[3];s.addShape(pptx.shapes.RECTANGLE,{x:x,y:1.75,w:4.42,h:.38,fill:{color:co},line:{color:co,width:0}});s.addText(ti,{x:x+.1,y:1.77,w:4.2,h:.34,fontSize:11,bold:true,color:P.white,fontFace:'Poppins',valign:'middle'});s.addShape(pptx.shapes.RECTANGLE,{x:x,y:2.13,w:4.42,h:3.2,fill:{color:P.lb},line:{color:P.bd,width:.75}});it.slice(0,4).forEach(function(item,i){s.addShape(pptx.shapes.OVAL,{x:x+.18,y:2.32+i*.72,w:.14,h:.14,fill:{color:co},line:{color:co,width:0}});s.addText(item,{x:x+.42,y:2.22+i*.72,w:3.82,h:.62,fontSize:10,color:'444444',fontFace:'Poppins'});});});}
+function makeSEOAudit(pptx,fd,c){var s=pptx.addSlide();s.background={color:P.white};hdr(s,pptx,'Current SEO Performance');[{label:'Monthly Organic Traffic',val:fd.organicTraffic||'—'},{label:'Organic Keywords',val:fd.organicKeywords||'—'},{label:'Domain Rating',val:fd.domainRating||'—'},{label:'Backlinks',val:fd.backlinks||'—'}].forEach(function(m,i){var x=.28+i*2.36,y=1,w=2.18,h=1.42;s.addShape(pptx.shapes.RECTANGLE,{x:x,y:y,w:w,h:h,fill:{color:P.lb},line:{color:P.bd,width:.75}});s.addShape(pptx.shapes.RECTANGLE,{x:x,y:y,w:w,h:.06,fill:{color:P.purple},line:{color:P.purple,width:0}});s.addText(m.val,{x:x,y:y+.2,w:w,h:.78,fontSize:32,bold:true,color:P.purple,fontFace:'Poppins',align:'center'});s.addText(m.label,{x:x,y:y+1.02,w:w,h:.34,fontSize:8.5,color:'888888',fontFace:'Poppins',align:'center'});});s.addText((c.seoAudit&&c.seoAudit.summary)||'',{x:.28,y:2.58,w:9.44,h:.58,fontSize:10.5,color:'444444',fontFace:'Poppins'});((c.seoAudit&&c.seoAudit.insights)||[]).slice(0,4).forEach(function(ins,i){var col=i%2,row=Math.floor(i/2),x=.28+col*4.9,y=3.28+row*.72;s.addShape(pptx.shapes.OVAL,{x:x,y:y+.14,w:.14,h:.14,fill:{color:P.purple},line:{color:P.purple,width:0}});s.addText(ins,{x:x+.26,y:y,w:4.44,h:.62,fontSize:10,color:'555555',fontFace:'Poppins'});});}
+function makeSW(pptx,str,wk){var s=pptx.addSlide();s.background={color:P.white};hdr(s,pptx,'Strengths & Weaknesses Analysis');[[.28,'STRENGTHS',str,P.purple,P.lb,P.bd],[5.2,'AREAS FOR IMPROVEMENT',wk,'C2870A','FFFBEB','FDE68A']].forEach(function(a){var x=a[0],lb=a[1],it=a[2],ac=a[3],bg=a[4],br=a[5];s.addText(lb,{x:x,y:1.02,w:4.5,h:.35,fontSize:11,bold:true,color:ac,fontFace:'Poppins'});it.slice(0,3).forEach(function(item,i){var y=1.48+i*1.32,h=1.15;s.addShape(pptx.shapes.RECTANGLE,{x:x,y:y,w:4.52,h:h,fill:{color:bg},line:{color:br,width:.75}});s.addShape(pptx.shapes.RECTANGLE,{x:x,y:y,w:.07,h:h,fill:{color:ac},line:{color:ac,width:0}});s.addText(item.title,{x:x+.18,y:y+.1,w:4.2,h:.38,fontSize:11,bold:true,color:'222222',fontFace:'Poppins'});s.addText(item.description,{x:x+.18,y:y+.55,w:4.2,h:.52,fontSize:9.5,color:'666666',fontFace:'Poppins'});});});}
+function makeSEOStrat(pptx,d){var s=pptx.addSlide();s.background={color:P.white};hdr(s,pptx,'SEO Strategy & Keyword Clusters');s.addText(d.overview||'',{x:.28,y:1,w:9.44,h:.5,fontSize:10.5,color:'444444',fontFace:'Poppins'});(d.keywordClusters||[]).slice(0,4).forEach(function(c,i){var col=i%2,row=Math.floor(i/2),x=.28+col*4.88,y=1.65+row*1.6,w=4.52,h=1.42;s.addShape(pptx.shapes.RECTANGLE,{x:x,y:y,w:w,h:h,fill:{color:P.lb},line:{color:P.bd,width:.75}});s.addShape(pptx.shapes.OVAL,{x:x+.15,y:y+.14,w:.38,h:.38,fill:{color:P.purple},line:{color:P.purple,width:0}});s.addText(String(i+1),{x:x+.15,y:y+.14,w:.38,h:.38,fontSize:11,bold:true,color:P.white,fontFace:'Poppins',align:'center',valign:'middle'});s.addText(c.name,{x:x+.65,y:y+.18,w:w-.8,h:.38,fontSize:11,bold:true,color:'222222',fontFace:'Poppins'});s.addText(c.description,{x:x+.15,y:y+.65,w:w-.3,h:.65,fontSize:9.5,color:'666666',fontFace:'Poppins'});});}
+function makeGEOIntro(pptx,intro){var s=pptx.addSlide();s.background={color:P.white};hdr(s,pptx,'The Rise of AI-First Search: GEO');s.addText(intro||'GEO ensures your brand appears inside AI-generated answers — reaching audiences before they click a search result.',{x:.28,y:1,w:9.44,h:.65,fontSize:11,color:'444444',fontFace:'Poppins'});[[.28,'Traditional SEO',['Blue-link ranking focus','Click-through dependency','Google-centric strategy','Keyword volume prioritised'],'F9FAFB','D1D5DB','6B7280'],[5.2,'Generative Engine Optimisation',['AI citations & brand mentions','Answer-first visibility','Multi-AI platform presence','Entity & authority signals'],P.purple,P.purple,P.white]].forEach(function(a){var x=a[0],ti=a[1],it=a[2],bg=a[3],bo=a[4],tc=a[5],isp=bg===P.purple;s.addShape(pptx.shapes.RECTANGLE,{x:x,y:1.85,w:4.52,h:3.6,fill:{color:bg},line:{color:bo,width:isp?0:.75}});if(isp)s.addShape(pptx.shapes.OVAL,{x:x+3.2,y:1.7,w:1.8,h:1.8,fill:{color:P.white,transparency:93},line:{color:P.white,width:0}});s.addText(ti,{x:x+.18,y:1.98,w:4.1,h:.45,fontSize:12,bold:true,color:tc,fontFace:'Poppins'});it.forEach(function(item,i){var dot=isp?P.light:'D1D5DB',txtc=isp?P.light:'555555';s.addShape(pptx.shapes.OVAL,{x:x+.18,y:2.55+i*.68,w:.12,h:.12,fill:{color:dot},line:{color:dot,width:0}});s.addText(item,{x:x+.4,y:2.46+i*.68,w:4,h:.58,fontSize:10.5,color:txtc,fontFace:'Poppins'});});});s.addShape(pptx.shapes.OVAL,{x:4.72,y:3,w:.56,h:.56,fill:{color:P.purple},line:{color:P.purple,width:0}});s.addText('→',{x:4.72,y:3,w:.56,h:.56,fontSize:16,bold:true,color:P.white,fontFace:'Poppins',align:'center',valign:'middle'});}
+function makeGEOAudit(pptx,fd,c){var s=pptx.addSlide();s.background={color:P.white};hdr(s,pptx,'AI Presence Audit');s.addText((c.geoAudit&&c.geoAudit.summary)||'',{x:.28,y:1,w:9.44,h:.58,fontSize:10.5,color:'444444',fontFace:'Poppins'});[{plat:'ChatGPT',val:fd.chatgptCitations||'0',col:P.purple},{plat:'Google Gemini',val:fd.geminiCitations||'0',col:'1A73E8'},{plat:'Perplexity AI',val:fd.perplexityCitations||'0',col:'20B2AA'},{plat:'MS Copilot',val:fd.copilotCitations||'0',col:'0078D4'}].forEach(function(p,i){var x=.28+i*2.36,y=1.75,w=2.18,h=1.65;s.addShape(pptx.shapes.RECTANGLE,{x:x,y:y,w:w,h:h,fill:{color:P.lb},line:{color:P.bd,width:.75}});s.addShape(pptx.shapes.RECTANGLE,{x:x,y:y,w:w,h:.06,fill:{color:p.col},line:{color:p.col,width:0}});s.addText(p.val,{x:x,y:y+.25,w:w,h:.85,fontSize:38,bold:true,color:p.col,fontFace:'Poppins',align:'center'});s.addText('citations',{x:x,y:y+1.1,w:w,h:.25,fontSize:9,color:'888888',fontFace:'Poppins',align:'center'});s.addText(p.plat,{x:x,y:y+1.35,w:w,h:.25,fontSize:9.5,bold:true,color:'444444',fontFace:'Poppins',align:'center'});});s.addShape(pptx.shapes.RECTANGLE,{x:.28,y:3.55,w:9.44,h:.06,fill:{color:P.bd},line:{color:P.bd,width:0}});s.addText('Key Insight',{x:.28,y:3.72,w:2.2,h:.3,fontSize:10,bold:true,color:P.purple,fontFace:'Poppins'});s.addText((c.geoAudit&&c.geoAudit.insight)||'',{x:2.58,y:3.72,w:7.14,h:.65,fontSize:10,color:'555555',fontFace:'Poppins',italic:true});}
+function makeGEOStrat(pptx,d){var s=pptx.addSlide();s.background={color:P.white};hdr(s,pptx,'GEO Strategy & Implementation');s.addText(d.overview||'',{x:.28,y:1,w:9.44,h:.5,fontSize:10.5,color:'444444',fontFace:'Poppins'});(d.tactics||[]).slice(0,6).forEach(function(t,i){var col=i%3,row=Math.floor(i/3),x=.28+col*3.24,y=1.65+row*1.62,w=3,h=1.45;s.addShape(pptx.shapes.RECTANGLE,{x:x,y:y,w:w,h:h,fill:{color:P.lb},line:{color:P.bd,width:.75}});s.addShape(pptx.shapes.RECTANGLE,{x:x,y:y,w:w,h:.06,fill:{color:P.purple},line:{color:P.purple,width:0}});s.addText(t.name,{x:x+.12,y:y+.14,w:w-.24,h:.38,fontSize:10.5,bold:true,color:'222222',fontFace:'Poppins'});s.addText(t.description,{x:x+.12,y:y+.6,w:w-.24,h:.75,fontSize:9,color:'666666',fontFace:'Poppins'});});}
+function makeOutcomes(pptx,seoK,geoK){var s=pptx.addSlide();s.background={color:P.white};hdr(s,pptx,'Expected Outcomes & KPIs');[[.28,'SEO KPIs',seoK,P.purple],[5.2,'GEO KPIs',geoK,'7a3de0']].forEach(function(a){var x=a[0],lb=a[1],it=a[2],ac=a[3];s.addShape(pptx.shapes.RECTANGLE,{x:x,y:1,w:4.52,h:.38,fill:{color:ac},line:{color:ac,width:0}});s.addText(lb,{x:x+.12,y:1.02,w:4.3,h:.34,fontSize:12,bold:true,color:P.white,fontFace:'Poppins',valign:'middle'});it.slice(0,5).forEach(function(k,i){var y=1.48+i*.76,h=.68;s.addShape(pptx.shapes.RECTANGLE,{x:x,y:y,w:4.52,h:h,fill:{color:P.lb},line:{color:P.bd,width:.75}});s.addText(k.metric,{x:x+.15,y:y+.1,w:2.4,h:.5,fontSize:9.5,color:'444444',fontFace:'Poppins'});s.addText(k.target,{x:x+2.6,y:y+.06,w:1.78,h:.56,fontSize:11,bold:true,color:ac,fontFace:'Poppins',align:'right'});});});}
+function makeTimeline(pptx,phases){var s=pptx.addSlide();s.background={color:P.white};hdr(s,pptx,'12-Month Roadmap');var n=phases.length||1,bw=9/n;phases.slice(0,4).forEach(function(ph,i){var x=.5+i*bw,y=1.12,w=bw-.18,col=i===0?P.purple:i===1?'7a3de0':i===2?'6630d4':'5518b8';s.addShape(pptx.shapes.RECTANGLE,{x:x,y:y,w:w,h:.38,fill:{color:col},line:{color:col,width:0}});s.addText(ph.phase||('Phase '+(i+1)),{x:x,y:y+.02,w:w,h:.34,fontSize:10.5,bold:true,color:P.white,fontFace:'Poppins',align:'center',valign:'middle'});s.addText(ph.period||'',{x:x,y:y+.42,w:w,h:.28,fontSize:9,color:col,fontFace:'Poppins',align:'center',bold:true});s.addShape(pptx.shapes.RECTANGLE,{x:x,y:y+.78,w:w,h:4.2,fill:{color:P.lb},line:{color:P.bd,width:.75}});(ph.activities||[]).slice(0,6).forEach(function(a,j){s.addShape(pptx.shapes.OVAL,{x:x+.1,y:y+.95+j*.6,w:.11,h:.11,fill:{color:col},line:{color:col,width:0}});s.addText(a,{x:x+.28,y:y+.88+j*.6,w:w-.3,h:.52,fontSize:8.5,color:'555555',fontFace:'Poppins'});});});}
+function makeComms(pptx,d,cur){var s=pptx.addSlide();s.background={color:P.white};hdr(s,pptx,'Commercial Proposal');s.addText(d.intro||'',{x:.28,y:1,w:9.44,h:.45,fontSize:10.5,color:'444444',fontFace:'Poppins'});var pkgs=d.packages||[];if(!pkgs.length)return;var n=pkgs.length,cw=(9.44/n)-.2;pkgs.forEach(function(pkg,i){var x=.28+i*(9.44/n),hi=i===Math.floor(n/2),bg=hi?P.purple:P.lb,tc=hi?P.white:'222222',sc=hi?P.light:P.purple,fc=hi?'DDD6FE':'555555';s.addShape(pptx.shapes.RECTANGLE,{x:x,y:1.6,w:cw,h:3.8,fill:{color:bg},line:{color:hi?P.purple:P.bd,width:hi?0:.75}});if(hi){s.addShape(pptx.shapes.RECTANGLE,{x:x,y:1.6,w:cw,h:.3,fill:{color:'7a3de0'},line:{color:'7a3de0',width:0}});s.addText('RECOMMENDED',{x:x,y:1.6,w:cw,h:.3,fontSize:7.5,bold:true,color:P.white,fontFace:'Poppins',align:'center',valign:'middle',charSpacing:1});}var cy=hi?1.98:1.68;s.addText(pkg.name,{x:x,y:cy+.08,w:cw,h:.45,fontSize:13,bold:true,color:tc,fontFace:'Poppins',align:'center'});s.addText(pkg.price,{x:x,y:cy+.65,w:cw,h:.68,fontSize:28,bold:true,color:sc,fontFace:'Poppins',align:'center'});s.addText('/month',{x:x,y:cy+1.32,w:cw,h:.24,fontSize:8.5,color:hi?'DDD6FE':'AAAAAA',fontFace:'Poppins',align:'center'});if(pkg.hours)s.addText(pkg.hours,{x:x,y:cy+1.6,w:cw,h:.25,fontSize:9,bold:true,color:sc,fontFace:'Poppins',align:'center'});(pkg.features||[]).slice(0,5).forEach(function(f,j){s.addText('✓  '+f,{x:x+.14,y:cy+1.96+j*.3,w:cw-.28,h:.28,fontSize:8.5,color:fc,fontFace:'Poppins'});});});s.addText('All prices in '+cur.code+' ('+cur.sign.trim()+'). Exclusive of VAT. Minimum 6-month commitment.',{x:.28,y:5.44,w:9.44,h:.16,fontSize:7.5,color:'AAAAAA',fontFace:'Poppins',italic:true});}
+function makeTY(pptx){var s=pptx.addSlide();s.background={color:P.dark};s.addShape(pptx.shapes.RECTANGLE,{x:0,y:0,w:.2,h:5.625,fill:{color:P.purple},line:{color:P.purple,width:0}});s.addShape(pptx.shapes.RECTANGLE,{x:0,y:5,w:10,h:.625,fill:{color:P.purple},line:{color:P.purple,width:0}});s.addShape(pptx.shapes.OVAL,{x:6.5,y:-.6,w:5,h:5,fill:{color:P.purple,transparency:88},line:{color:P.purple,width:0}});s.addText('Thank You.',{x:.5,y:1.05,w:9,h:1.4,fontSize:56,bold:true,color:P.white,fontFace:'Poppins'});s.addText('20 Years of Experience and Innovation.',{x:.5,y:2.68,w:8,h:.55,fontSize:16,color:P.light,fontFace:'Poppins',italic:true});[['Twitter / X','@digitalnexa'],['Website','www.digitalnexa.com'],['Email','support@digitalnexa.com'],['Phone','+971 44 329 464']].forEach(function(a,i){s.addText(a[0]+':',{x:.5,y:3.48+i*.3,w:1.8,h:.26,fontSize:9.5,color:'7A6B94',fontFace:'Poppins'});s.addText(a[1],{x:2.3,y:3.48+i*.3,w:5,h:.26,fontSize:9.5,color:'BDB4CC',fontFace:'Poppins'});});s.addText('NEXA',{x:7.4,y:5.04,w:2.3,h:.5,fontSize:22,bold:true,color:P.white,fontFace:'Poppins',align:'center'});}
+/* API */
+function fileToBase64(file){
+  return new Promise(function(res,rej){
+    var r=new FileReader();
+    r.onerror=rej;
+    r.onload=function(){
+      var img=new Image();
+      img.onerror=rej;
+      img.onload=function(){
+        var MAX=1568;
+        var w=img.width,h=img.height;
+        if(w<=MAX&&h<=MAX){res(r.result.split(',')[1]);return;}
+        var scale=Math.min(MAX/w,MAX/h);
+        var cw=Math.round(w*scale),ch=Math.round(h*scale);
+        var canvas=document.createElement('canvas');
+        canvas.width=cw;canvas.height=ch;
+        var ctx=canvas.getContext('2d');
+        ctx.drawImage(img,0,0,cw,ch);
+        res(canvas.toDataURL('image/jpeg',0.85).split(',')[1]);
+      };
+      img.src=r.result;
+    };
+    r.readAsDataURL(file);
+  });
+}
+function buildPrompt(s){
+  var cur=s.currency;
+  var pkgLines=s.packages.filter(function(p){return p.name;}).map(function(p){return '- '+p.name+': '+cur.sign+p.price+'/month | '+(p.hours||'N/A')+' hrs | '+(p.features||'TBC');}).join('\n')||'Not provided';
+  return 'You are a senior SEO & GEO strategist at NEXA. Create pitch deck content for this client. British English. All prices in '+cur.code+'.\n\nCLIENT: '+s.clientName+' | Industry: '+(s.clientIndustry||'N/A')+' | Website: '+s.websiteUrl+'\nLanguages: '+(s.languages.join(',')||'English')+' | Locations: '+(s.locations||'N/A')+' | Audience: '+(s.audience||'N/A')+'\nKeywords: '+(s.preferredKeywords||'N/A')+' | Objectives: '+(s.seoObjectives.join(',')||'Growth')+'\n\nSEO: Traffic='+(s.organicTraffic||'?')+' Keywords='+(s.organicKeywords||'?')+' DR='+(s.domainRating||'?')+' Backlinks='+(s.backlinks||'?')+' RefDomains='+(s.referringDomains||'?')+'\nNotes: '+(s.seoAuditNotes||'None')+(s.seoFiles.length?' ('+s.seoFiles.length+' SEO files attached)':'')+'\n\nGEO: ChatGPT='+(s.chatgptCitations||'0')+' Gemini='+(s.geminiCitations||'0')+' Perplexity='+(s.perplexityCitations||'0')+' Copilot='+(s.copilotCitations||'0')+'\nNotes: '+(s.geoAuditNotes||'None')+(s.geoFiles.length?' ('+s.geoFiles.length+' GEO files)':'')+'\n\nPACKAGES:\n'+pkgLines+'\n'+(s.commercialNotes||'')+(s.commercialFiles.length?' ('+s.commercialFiles.length+' files attached)':'')+'\n\nReturn ONLY valid JSON object, no markdown:\n{"cover":{"tagline":"string"},"objectives":[{"title":"string","description":"string"}],"opportunity":{"context":"string","established":["s1","s2","s3"],"opportunities":["o1","o2","o3","o4"]},"seoAudit":{"summary":"string","insights":["i1","i2","i3","i4"]},"strengths":[{"title":"string","description":"string"}],"weaknesses":[{"title":"string","description":"string"}],"seoStrategy":{"overview":"string","keywordClusters":[{"name":"string","description":"string"}]},"geoIntro":"string","geoAudit":{"summary":"string","insight":"string"},"geoStrategy":{"overview":"string","tactics":[{"name":"string","description":"string"}]},"seoKpis":[{"metric":"string","target":"string"}],"geoKpis":[{"metric":"string","target":"string"}],"timeline":[{"phase":"string","period":"string","activities":["a1","a2","a3"]}],"commercials":{"intro":"string","packages":[{"name":"string","price":"'+cur.sign+'X,XXX","hours":"string","features":["f1","f2","f3","f4"]}]}}\nExactly: 4 objectives, 3-4 strengths, 3-4 weaknesses, 4 keyword clusters, 5-6 GEO tactics, 5 SEO KPIs, 4 GEO KPIs, 3-4 timeline phases. All specific to '+s.clientName+'. Prices in '+cur.code+'.';
+}
+async function callClaude(s){
+  var apiKey=document.getElementById('nexa-api-key').value.trim();
+  if(!apiKey)throw new Error('Please enter your Anthropic API key at the top of the page.');
+  var content=[];
+  var imgs=[].concat(s.seoFiles,s.geoFiles,s.commercialFiles).filter(function(f){return f.type.startsWith('image/');});
+  for(var i=0;i<Math.min(imgs.length,5);i++){var b64=await fileToBase64(imgs[i]);content.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}});}
+  content.push({type:'text',text:buildPrompt(s)});
+  var resp=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:content}]})
+  });
+  if(!resp.ok){var e=await resp.text().catch(function(){return '';});throw new Error('API '+resp.status+': '+e.slice(0,300));}
+  var data=await resp.json();
+  var txt=data.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
+  return JSON.parse(txt.replace(/^```[\w]*\n?/,'').replace(/\n?```$/,'').trim());
+}
+async function generatePres(fd){
+  var content=await callClaude(fd);
+  var pptx=new window.PptxGenJS();pptx.layout='LAYOUT_16x9';
+  makeCover(pptx,content,fd);makeDivider(pptx,'Our Strategic Approach','Tailored objectives for measurable growth');makeObjectives(pptx,content.objectives||[]);makeOpportunity(pptx,content.opportunity||{});makeDivider(pptx,'Current SEO Landscape','An honest assessment of where you stand today');makeSEOAudit(pptx,fd,content);makeSW(pptx,content.strengths||[],content.weaknesses||[]);makeDivider(pptx,'SEO Strategy','Building sustainable organic growth');makeSEOStrat(pptx,content.seoStrategy||{});makeDivider(pptx,'Evolving to GEO','AI-first search is here — are you visible?');makeGEOIntro(pptx,content.geoIntro);makeGEOAudit(pptx,fd,content);makeGEOStrat(pptx,content.geoStrategy||{});makeDivider(pptx,'Expected Outcomes','Clear KPIs and a 12-month roadmap');makeOutcomes(pptx,content.seoKpis||[],content.geoKpis||[]);makeTimeline(pptx,content.timeline||[]);makeDivider(pptx,'Commercial Proposal','Flexible packages designed for your goals');makeComms(pptx,content.commercials||{},fd.currency);makeTY(pptx);
+  await pptx.writeFile({fileName:fd.clientName.replace(/[^a-z0-9]/gi,'_')+'_SEO_GEO_Proposal.pptx'});
+}
+/* RENDER */
+function render(){
+  var root=document.getElementById('root');root.innerHTML='';
+  var wrap=mk('div','wrap');
+  wrap.appendChild(mk('div','top-bar','<div><span class="top-logo">NEXA</span></div><div class="top-tag">Pitch Deck Generator</div>'));
+  /* API bar */
+  var sk='';try{sk=sessionStorage.getItem('nexa_ak')||'';}catch(e){}
+  var ab=mk('div','api-bar');
+  var al=mk('span','api-lbl');al.textContent='API Key';
+  var af=mk('div','api-field');
+  var ai=mk('input','api-inp');ai.type='password';ai.id='nexa-api-key';ai.placeholder='sk-ant-api03-...';ai.value=sk;
+  ai.addEventListener('input',function(ev){try{sessionStorage.setItem('nexa_ak',ev.target.value);}catch(e){}});
+  var an=mk('div','api-note');an.innerHTML='Required to generate slides. Get yours at <a href="https://console.anthropic.com/account/keys" target="_blank">console.anthropic.com/account/keys</a> — stored in this tab only.';
+  af.appendChild(ai);af.appendChild(an);ab.appendChild(al);ab.appendChild(af);wrap.appendChild(ab);
+  /* Steps */
+  var sd=mk('div','steps');
+  STEPS.forEach(function(name,i){
+    if(i>0){var ln=mk('div','stp-line'+(i<=state.step?' done':''));sd.appendChild(ln);}
+    var stp=mk('div','stp'+(i===state.step?' active':i<state.step?' done':''));
+    var dot=mk('div','stp-dot');dot.textContent=i<state.step?'✓':String(i+1);
+    var lbl=mk('div','stp-lbl');lbl.textContent=name;
+    stp.appendChild(dot);stp.appendChild(lbl);sd.appendChild(stp);
+  });
+  wrap.appendChild(sd);
+  if(state.step===0)s1(wrap);else if(state.step===1)s2(wrap);else if(state.step===2)s3(wrap);else if(state.step===3)s4(wrap);else s5(wrap);
+  root.appendChild(wrap);
+}
+function s1(w){
+  var hd=mk('div');hd.innerHTML='<div class="section-ttl">Strategy & Client Details</div><div class="section-sub">Tell us about the client and their SEO objectives.</div>';w.appendChild(hd);
+  var c1=mk('div','card');c1.appendChild(mk('div','card-hd','<div class="card-hd-icon">🏢</div> Client Information'));c1.appendChild(r2(fld('Client / Company Name',inp(state.clientName,'clientName','e.g. Kempner Finance')),fld('Industry / Sector',inp(state.clientIndustry,'clientIndustry','e.g. Financial Services'))));c1.appendChild(r2(fld('Website URL',inp(state.websiteUrl,'websiteUrl','https://example.com')),fld('Presentation Date',inp(state.presentationDate,'presentationDate','','date'))));w.appendChild(c1);
+  var c2=mk('div','card');c2.appendChild(mk('div','card-hd','<div class="card-hd-icon">🎯</div> Targeting & Scope'));c2.appendChild(fld('Target Locations',inp(state.locations,'locations','e.g. UAE, United Kingdom, Saudi Arabia')));c2.appendChild(fld('Target Audience',inp(state.audience,'audience','e.g. C-suite executives, SME owners')));c2.appendChild(fld('Preferred Keywords',ta(state.preferredKeywords,'preferredKeywords','e.g. financial planning, wealth advisory')));w.appendChild(c2);
+  var c3=mk('div','card');c3.appendChild(mk('div','card-hd','<div class="card-hd-icon">🌍</div> Target Languages'));c3.appendChild(chipGroup(LANGS,'languages'));w.appendChild(c3);
+  var c4=mk('div','card');c4.appendChild(mk('div','card-hd','<div class="card-hd-icon">📌</div> SEO Objectives'));c4.appendChild(chipGroup(OBJS,'seoObjectives'));w.appendChild(c4);
+  w.appendChild(navRow(false,'Next: SEO Audit →',null,state.clientName.trim().length>1&&state.websiteUrl.trim().length>5));
+}
+function s2(w){
+  var hd=mk('div');hd.innerHTML='<div class="section-ttl">SEO Technical Audit</div><div class="section-sub">Upload Ahrefs / SEMrush reports and enter key metrics.</div>';w.appendChild(hd);
+  var c1=mk('div','card');c1.appendChild(mk('div','card-hd','<div class="card-hd-icon">📊</div> Upload Audit Report'));var n1=mk('p');n1.textContent='Upload screenshots or exports from Ahrefs, SEMrush, or Google Search Console.';n1.style.cssText='font-size:12px;color:#7a6f9b;margin-bottom:12px';c1.appendChild(n1);c1.appendChild(uploadBox('seoFiles','image/*,.pdf','Click or drag to upload SEO audit files'));w.appendChild(c1);
+  var c2=mk('div','card');c2.appendChild(mk('div','card-hd','<div class="card-hd-icon">📈</div> Key Metrics (Optional)'));var n2=mk('p');n2.textContent='These appear as data cards on the audit slide.';n2.style.cssText='font-size:12px;color:#7a6f9b;margin-bottom:14px';c2.appendChild(n2);
+  var mg=mk('div','metric-grid');[['Monthly Organic Traffic','organicTraffic','e.g. 12,400'],['Organic Keywords','organicKeywords','e.g. 3,200'],['Domain Rating (DR)','domainRating','e.g. 42'],['Total Backlinks','backlinks','e.g. 8,500'],['Referring Domains','referringDomains','e.g. 310']].forEach(function(a){var mb=mk('div','metric-box');var ml=mk('div','metric-lbl');ml.textContent=a[0];mb.appendChild(ml);var mi=mk('input','metric-inp');mi.type='text';mi.value=state[a[1]]||'';mi.placeholder=a[2];mi.addEventListener('input',(function(k){return function(ev){state[k]=ev.target.value;};})(a[1]));mb.appendChild(mi);mg.appendChild(mb);});
+  c2.appendChild(mg);c2.appendChild(fld('Additional Notes',ta(state.seoAuditNotes,'seoAuditNotes','Known issues, context...')));w.appendChild(c2);
+  w.appendChild(navRow(true,'Next: GEO Audit →',null,true));
+}
+function s3(w){
+  var hd=mk('div');hd.innerHTML='<div class="section-ttl">GEO / AI Presence Audit</div><div class="section-sub">How visible is the client in AI-generated answers today?</div>';w.appendChild(hd);
+  var c1=mk('div','card');c1.appendChild(mk('div','card-hd','<div class="card-hd-icon">🤖</div> Upload GEO Audit Report'));var n1=mk('p');n1.textContent='Upload WriteSonic GEO exports or screenshots from AI tools.';n1.style.cssText='font-size:12px;color:#7a6f9b;margin-bottom:12px';c1.appendChild(n1);c1.appendChild(uploadBox('geoFiles','image/*,.pdf','Click or drag to upload GEO audit files'));w.appendChild(c1);
+  var c2=mk('div','card');c2.appendChild(mk('div','card-hd','<div class="card-hd-icon">💬</div> AI Citation Counts'));var n2=mk('p');n2.textContent='Enter how many times the brand is cited across AI platforms.';n2.style.cssText='font-size:12px;color:#7a6f9b;margin-bottom:14px';c2.appendChild(n2);
+  var mg=mk('div','metric-grid');[['ChatGPT Citations','chatgptCitations','e.g. 12'],['Google Gemini','geminiCitations','e.g. 5'],['Perplexity AI','perplexityCitations','e.g. 8'],['MS Copilot','copilotCitations','e.g. 3']].forEach(function(a){var mb=mk('div','metric-box');var ml=mk('div','metric-lbl');ml.textContent=a[0];mb.appendChild(ml);var mi=mk('input','metric-inp');mi.type='text';mi.value=state[a[1]]||'';mi.placeholder=a[2];mi.addEventListener('input',(function(k){return function(ev){state[k]=ev.target.value;};})(a[1]));mb.appendChild(mi);mg.appendChild(mb);});
+  c2.appendChild(mg);c2.appendChild(fld('Additional Notes',ta(state.geoAuditNotes,'geoAuditNotes','Competitor AI presence, observations...')));w.appendChild(c2);
+  w.appendChild(navRow(true,'Next: Commercials →',null,true));
+}
+function s4(w){
+  var hd=mk('div');hd.innerHTML='<div class="section-ttl">Commercial Proposal</div><div class="section-sub">Select a currency and define pricing packages.</div>';w.appendChild(hd);
+  var cc=mk('div','card');cc.appendChild(mk('div','card-hd','<div class="card-hd-icon">💱</div> Proposal Currency'));var cn=mk('p');cn.textContent='Default is AED — change as needed per client location.';cn.style.cssText='font-size:12px;color:#7a6f9b;margin-bottom:14px';cc.appendChild(cn);
+  var cg=mk('div','currency-grid');CURRENCIES.forEach(function(cur){var sel=state.currency.code===cur.code;var btn=mk('div','cur-btn'+(sel?' sel':''));btn.innerHTML='<span class="cur-flag">'+cur.flag+'</span><span class="cur-code">'+cur.code+'</span><span class="cur-name">'+cur.name+'</span><span class="cur-sym">'+cur.sign.trim()+'</span>';btn.addEventListener('click',(function(c){return function(){state.currency=c;render();};})(cur));cg.appendChild(btn);});cc.appendChild(cg);w.appendChild(cc);
+  var c1=mk('div','card');c1.appendChild(mk('div','card-hd','<div class="card-hd-icon">📁</div> Upload Pricing Calculator'));var un=mk('p');un.textContent='Upload the NEXA pricing calculator output or any commercial reference files.';un.style.cssText='font-size:12px;color:#7a6f9b;margin-bottom:12px';c1.appendChild(un);c1.appendChild(uploadBox('commercialFiles','image/*,.pdf,.xlsx','Click or drag to upload commercial files'));w.appendChild(c1);
+  var c2=mk('div','card');c2.innerHTML='<div class="card-hd"><div class="card-hd-icon" style="background:#7a3de0;font-size:18px">'+state.currency.flag+'</div> Package Builder <span style="font-size:11px;font-weight:500;color:#9b97b2;margin-left:6px">in '+state.currency.code+' ('+state.currency.sign.trim()+')</span></div>';
+  var pn=mk('p');pn.textContent='Define 2-4 packages. The middle package is highlighted as Recommended.';pn.style.cssText='font-size:12px;color:#7a6f9b;margin-bottom:12px';c2.appendChild(pn);
+  var ph=mk('div','pkg-hd');['Package Name','Price ('+state.currency.sign.trim()+'/mo)','Hrs/mo','Key Features',''].forEach(function(h){var d=mk('div','pkg-lbl');d.textContent=h;ph.appendChild(d);});c2.appendChild(ph);
+  state.packages.forEach(function(pkg,i){
+    var row=mk('div','pkg-row');
+    var ni=mk('input','inp');ni.value=pkg.name;ni.placeholder='e.g. Growth';ni.addEventListener('input',(function(idx){return function(ev){state.packages[idx].name=ev.target.value;};})(i));
+    var pi=mk('input','inp');pi.value=pkg.price;pi.placeholder='10,000';pi.addEventListener('input',(function(idx){return function(ev){state.packages[idx].price=ev.target.value;};})(i));
+    var hi=mk('input','inp');hi.value=pkg.hours;hi.placeholder='20';hi.addEventListener('input',(function(idx){return function(ev){state.packages[idx].hours=ev.target.value;};})(i));
+    var fi=mk('input','inp');fi.value=pkg.features;fi.placeholder='Technical SEO, Content...';fi.addEventListener('input',(function(idx){return function(ev){state.packages[idx].features=ev.target.value;};})(i));
+    var rm=mk('button','rm-btn');rm.textContent='✕';rm.addEventListener('click',(function(idx){return function(){if(state.packages.length>1){state.packages.splice(idx,1);render();}};})(i));
+    [ni,pi,hi,fi,rm].forEach(function(e){row.appendChild(e);});c2.appendChild(row);
+  });
+  if(state.packages.length<4){var ab=mk('button','add-btn');ab.textContent='+ Add Package';ab.addEventListener('click',function(){state.packages.push({name:'',price:'',hours:'',features:''});render();});c2.appendChild(ab);}
+  var sp=mk('div');sp.style.marginTop='14px';c2.appendChild(sp);
+  c2.appendChild(fld('Commercial Notes',ta(state.commercialNotes,'commercialNotes','Contract terms, discounts...')));
+  w.appendChild(c2);
+  w.appendChild(navRow(true,'Review & Generate →',null,true));
+}
+function s5(w){
+  var hd=mk('div');hd.innerHTML='<div class="section-ttl">Review & Generate</div><div class="section-sub">Confirm the details below, then generate the PPTX.</div>';w.appendChild(hd);
+  if(state.status==='generating'){var ga=mk('div','gen-area');ga.innerHTML='<div class="spinner"></div><div class="gen-ttl">Generating your pitch deck…</div><div class="gen-sub">Claude AI is writing slide content and building your PPTX.<br>This takes around 20–40 seconds.</div>';w.appendChild(ga);return;}
+  if(state.status==='success'){
+    var sb=mk('div','success-box');sb.innerHTML='<div class="success-ico">✅</div><div class="success-ttl">Pitch Deck Generated!</div><div class="success-sub">Your <strong>'+state.clientName+' SEO &amp; GEO Proposal.pptx</strong> has been downloaded.<br>Open it in PowerPoint or Google Slides to review.</div>';w.appendChild(sb);
+    var nr=mk('div','nav-row');nr.style.cssText='margin-top:8px;justify-content:center;gap:14px';
+    var ag=mk('button','btn-p');ag.textContent='🔄  Generate Again';ag.addEventListener('click',function(){state.status='idle';render();});
+    var nb=mk('button','btn-s');nb.textContent='+ New Proposal';nb.addEventListener('click',function(){Object.assign(state,{step:0,clientName:'',clientIndustry:'',websiteUrl:'',presentationDate:new Date().toISOString().split('T')[0],languages:[],locations:'',audience:'',preferredKeywords:'',seoObjectives:[],seoFiles:[],organicTraffic:'',organicKeywords:'',domainRating:'',backlinks:'',referringDomains:'',seoAuditNotes:'',geoFiles:[],chatgptCitations:'',geminiCitations:'',perplexityCitations:'',copilotCitations:'',geoAuditNotes:'',currency:CURRENCIES[0],commercialFiles:[],packages:[{name:'',price:'',hours:'',features:''}],commercialNotes:'',status:'idle',errorMsg:''});render();});
+    nr.appendChild(ag);nr.appendChild(nb);w.appendChild(nr);return;
+  }
+  var rg=mk('div','review-grid');
+  var rc1=mk('div','review-card');rc1.appendChild(mk('div','review-ttl','Client & Strategy'));[['Client',state.clientName||'—'],['Industry',state.clientIndustry||'—'],['Website',state.websiteUrl||'—'],['Date',state.presentationDate||'—'],['Locations',state.locations||'—'],['Languages',state.languages.join(', ')||'—'],['Objectives',state.seoObjectives.join(', ')||'—']].forEach(function(a){rc1.appendChild(rvRow(a[0],a[1]));});rg.appendChild(rc1);
+  var rc2=mk('div','review-card');rc2.appendChild(mk('div','review-ttl','SEO Audit'));[['Files',state.seoFiles.length+' file(s)'],['Traffic',state.organicTraffic||'—'],['Keywords',state.organicKeywords||'—'],['DR',state.domainRating||'—'],['Backlinks',state.backlinks||'—']].forEach(function(a){rc2.appendChild(rvRow(a[0],a[1]));});rg.appendChild(rc2);
+  var rc3=mk('div','review-card');rc3.appendChild(mk('div','review-ttl','GEO Audit'));[['Files',state.geoFiles.length+' file(s)'],['ChatGPT',state.chatgptCitations||'0'],['Gemini',state.geminiCitations||'0'],['Perplexity',state.perplexityCitations||'0'],['Copilot',state.copilotCitations||'0']].forEach(function(a){rc3.appendChild(rvRow(a[0],a[1]));});rg.appendChild(rc3);
+  var rc4=mk('div','review-card');rc4.appendChild(mk('div','review-ttl','Currency & Packages'));rc4.appendChild(rvRow('Currency',state.currency.flag+' '+state.currency.code));var vp=state.packages.filter(function(p){return p.name;});if(vp.length){vp.forEach(function(p){rc4.appendChild(rvRow(p.name,state.currency.sign.trim()+p.price+'/mo'));});}else{var np=mk('div');np.style.cssText='font-size:12px;color:#a89fc4;padding:6px 0';np.textContent='No packages — AI will suggest';rc4.appendChild(np);}rg.appendChild(rc4);
+  w.appendChild(rg);
+  if(state.status==='error'){var eb=mk('div','error-box');eb.textContent='⚠️ '+state.errorMsg;w.appendChild(eb);}
+  var nr2=mk('div','nav-row');nr2.style.marginTop='18px';
+  var bk=mk('button','btn-s');bk.textContent='← Edit';bk.addEventListener('click',function(){state.step=3;render();});nr2.appendChild(bk);
+  var gb=mk('button','btn-p');gb.textContent='🎨  Generate Pitch Deck PPTX';
+  if(!(state.clientName.trim().length>1&&state.websiteUrl.trim().length>5))gb.disabled=true;
+  gb.addEventListener('click',async function(){
+    state.status='generating';state.errorMsg='';render();
+    try{await generatePres(state);state.status='success';}
+    catch(e){state.status='error';state.errorMsg=e.message||'Unknown error. See browser console.';}
+    render();
+  });
+  nr2.appendChild(gb);w.appendChild(nr2);
+}
+render();
+})();
+</script>
+</body>
+</html>
